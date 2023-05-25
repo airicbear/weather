@@ -1,6 +1,15 @@
 "use client";
 
 import { Heading, Link, Text, VStack } from "@chakra-ui/react";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from "recharts";
 import useSWR from "swr";
 import fetcher from "./fetcher";
 import WeatherResponse from "./model";
@@ -14,7 +23,7 @@ export default function Home() {
   if (error) return <Text>Failed to load</Text>;
   if (!data) return <Text>Loading...</Text>;
 
-  console.log(data);
+  const currentTime = new Date(data.current_weather.time);
 
   return (
     <VStack>
@@ -22,9 +31,33 @@ export default function Home() {
       <Text>Latitude: {data.latitude}</Text>
       <Text>Longitude: {data.longitude}</Text>
       <Text>
-        Current Temperature: {data.current_weather.temperature}
-        {data.hourly_units.temperature_2m}
+        Current Temperature:{" "}
+        <b>
+          {data.current_weather.temperature}
+          {data.hourly_units.temperature_2m}
+        </b>
       </Text>
+      <ResponsiveContainer width="90%" height={400}>
+        <LineChart data={data.hourly.temperature_2m}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <Line type="monotone" dataKey={(v) => v} stroke="#8884d8" />
+          <XAxis
+            label={{ value: "Hour", position: "insideBottom", offset: -5 }}
+          />
+          <YAxis
+            type="number"
+            domain={["dataMin - 5", "dataMax + 5"]}
+            scale="linear"
+            label={{
+              value: data.hourly_units.temperature_2m,
+              angle: -90,
+              position: "insideLeft",
+            }}
+          />
+
+          <ReferenceLine x={currentTime.getHours()} stroke="red" />
+        </LineChart>
+      </ResponsiveContainer>
       <Link href="https://open-meteo.com/">Weather data by Open-Meteo.com</Link>
     </VStack>
   );
