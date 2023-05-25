@@ -1,6 +1,7 @@
 "use client";
 
 import { Heading, Link, Text, VStack } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import {
   CartesianGrid,
   Line,
@@ -16,15 +17,31 @@ import fetcher from "./fetcher";
 import WeatherResponse from "./model";
 
 export default function Home() {
-  const { data, error } = useSWR<WeatherResponse>(
-    "https://api.open-meteo.com/v1/forecast?latitude=39.9526&longitude=-75.1652&hourly=temperature_2m&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&forecast_days=1&timezone=America%2FNew_York",
-    fetcher
-  );
+  const [latitude, setLatitude] = useState<number>(0);
+  const [longitude, setLongitude] = useState<number>(0);
+
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&forecast_days=1&timezone=${encodeURIComponent(
+    timezone
+  )}`;
+  const { data, error } = useSWR<WeatherResponse>(url, fetcher);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      let lat = position.coords.latitude;
+      let long = position.coords.longitude;
+
+      setLatitude(lat);
+      setLongitude(long);
+    });
+  }, []);
 
   if (error) return <Text>Failed to load</Text>;
   if (!data) return <Text>Loading...</Text>;
 
   const currentTime = new Date(data.current_weather.time);
+
+  console.log(url);
 
   return (
     <VStack>
