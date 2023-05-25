@@ -41,8 +41,6 @@ export default function Home() {
 
   const currentTime = new Date(data.current_weather.time);
 
-  console.log(url);
-
   return (
     <VStack>
       <Heading>Weather</Heading>
