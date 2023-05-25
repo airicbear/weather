@@ -7,6 +7,7 @@ import {
   LineChart,
   ReferenceLine,
   ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
@@ -54,7 +55,7 @@ export default function Home() {
               position: "insideLeft",
             }}
           />
-
+          <Tooltip />
           <ReferenceLine x={currentTime.getHours()} stroke="red" />
         </LineChart>
       </ResponsiveContainer>
